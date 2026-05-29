@@ -1,0 +1,5 @@
+#pragma once
+
+#define PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD 1
+#include <printf/printf.h>
+#undef PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD
