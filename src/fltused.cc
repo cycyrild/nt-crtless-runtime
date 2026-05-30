@@ -1,1 +1,1 @@
-extern "C" int _fltused = 0;
+extern "C" __declspec(dllexport) int _fltused = 0;
