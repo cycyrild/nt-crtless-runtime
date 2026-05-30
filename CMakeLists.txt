@@ -8,7 +8,7 @@ get_target_property(PHNT_INCLUDE_DIRS phnt INTERFACE_INCLUDE_DIRECTORIES)
 
 set_property(TARGET phnt APPEND PROPERTY
     INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
-        "${PHNT_INCLUDE_DIRS}"
+    "${PHNT_INCLUDE_DIRS}"
 )
 
 block()
@@ -28,13 +28,13 @@ add_library(${PROJECT_NAME} OBJECT
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        include
+    include
 )
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
-        phnt::phnt
-        printf
+    phnt::phnt
+    printf
 )
 
 target_compile_options(printf PRIVATE
