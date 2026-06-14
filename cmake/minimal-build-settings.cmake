@@ -57,7 +57,6 @@ add_compile_definitions(
     PHNT_VERSION=${NT_CALL_PHNT_VERSION}
     _WIN32_WINNT=${NT_CALL_WIN32_WINNT}
     _AMD64_=1
-    NOMINMAX
 )
 
 add_compile_options(
