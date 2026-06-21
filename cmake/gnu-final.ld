@@ -43,9 +43,4 @@ SECTIONS
     KEEP(SORT(*)(.idata$6))
     KEEP(SORT(*)(.idata$7))
   }
-
-  /DISCARD/ :
-  {
-      *(*)
-  }
 }
