@@ -10,7 +10,8 @@ SECTIONS
   .text __image_base__ + PAGE_SIZE :
   {
       KEEP(*(.text$start))
-      *(SORT_BY_ALIGNMENT(EXCLUDE_FILE(*/xwin/*/lib/*) .text*))
+
+      *(SORT_BY_ALIGNMENT(.text*))
   }
 
   .data BLOCK(PAGE_SIZE) :

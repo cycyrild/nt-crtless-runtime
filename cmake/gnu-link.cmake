@@ -66,7 +66,7 @@ function(add_gnu_final_link
         "-Map=${_map_file}"
         "$<TARGET_FILE:${target}>.lto.obj"
         ${_dependency_files}
-        -L "${XWIN_ROOT}/sdk/lib/um/x86_64"
+        -L "/usr/x86_64-w64-mingw32/lib"
         ${_lib_args}
         -o "${_gnu_output}"
 
