@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(nt-crtless-runtime LANGUAGES CXX)
+project(nt-crtless-runtime LANGUAGES CXX ASM)
 
 add_subdirectory(phnt)
 
@@ -26,9 +26,18 @@ add_library(${PROJECT_NAME} OBJECT
     ${SRC_FILES}
 )
 
+target_sources(${PROJECT_NAME}
+    INTERFACE
+    "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:${CMAKE_CURRENT_SOURCE_DIR}/src/start_process.S>"
+    "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:${CMAKE_CURRENT_SOURCE_DIR}/src/start_dll.S>"
+    "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,MODULE_LIBRARY>:${CMAKE_CURRENT_SOURCE_DIR}/src/start_dll.S>"
+)
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     include
+    PRIVATE
+    src
 )
 
 target_link_libraries(${PROJECT_NAME}
