@@ -51,7 +51,7 @@ class MapFile:
 
         if end < start:
             raise ValueError(
-                f"Invalid range: {end_name}=0x{end:X} < {start_name}=0x{start:X}"
+                f"Invalid range: {end_name}=0x{end:X} < {start_name}=0x{start:X}",
             )
 
         return ObjectInfo(

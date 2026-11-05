@@ -130,7 +130,6 @@ function(add_gnu_final_link target)
         "-Map=${_map}"
         "$<TARGET_FILE:${target}>.lto.obj"
         ${_exports_file}
-        -L "/usr/x86_64-w64-mingw32/lib"
         ${_libraries}
         -o "${_output}"
 

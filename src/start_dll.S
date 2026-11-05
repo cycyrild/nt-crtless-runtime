@@ -1,6 +1,6 @@
 .intel_syntax noprefix
 
-.section .text$runtime_start,"xr"
+.section .text$runtime_start
 
 .global start
 .extern Bootstrap

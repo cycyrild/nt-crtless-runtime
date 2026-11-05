@@ -1,8 +1,6 @@
 import struct
-
 from dataclasses import dataclass
 from typing import ClassVar
-
 
 IMAGE_REL_BASED_ABSOLUTE = 0
 IMAGE_REL_BASED_DIR64 = 10
@@ -70,7 +68,7 @@ def verify_relocations(
 
         if remaining < ImageBaseRelocation.sizeof():
             raise ValueError(
-                f"Truncated IMAGE_BASE_RELOCATION at offset 0x{block_offset:X}"
+                f"Truncated IMAGE_BASE_RELOCATION at offset 0x{block_offset:X}",
             )
 
         block = ImageBaseRelocation.unpack_from(
@@ -82,7 +80,7 @@ def verify_relocations(
             raise ValueError(
                 f"Invalid relocation block size "
                 f"0x{block.size_of_block:X} at "
-                f"offset 0x{block_offset:X}"
+                f"offset 0x{block_offset:X}",
             )
 
         block_end = block_offset + block.size_of_block
@@ -91,7 +89,7 @@ def verify_relocations(
             raise ValueError(
                 f"Relocation block at offset "
                 f"0x{block_offset:X} extends beyond "
-                f"the relocation table"
+                f"the relocation table",
             )
 
         records_size = block.size_of_block - ImageBaseRelocation.sizeof()
@@ -100,7 +98,7 @@ def verify_relocations(
             raise ValueError(
                 f"Invalid relocation block size "
                 f"0x{block.size_of_block:X} at "
-                f"offset 0x{block_offset:X}"
+                f"offset 0x{block_offset:X}",
             )
 
         record_offset = block_offset + ImageBaseRelocation.sizeof()
@@ -120,7 +118,7 @@ def verify_relocations(
                 raise ValueError(
                     f"Unsupported relocation type "
                     f"{record.type} at relocation table "
-                    f"offset 0x{record_offset - ImageRelocationRecord.sizeof():X}"
+                    f"offset 0x{record_offset - ImageRelocationRecord.sizeof():X}",
                 )
 
             target_address = image_base + block.virtual_address + record.offset
@@ -134,7 +132,7 @@ def verify_relocations(
                     f"0x{target_end:X}) is outside "
                     f"data range "
                     f"[0x{data_address:X}, "
-                    f"0x{data_end:X})"
+                    f"0x{data_end:X})",
                 )
 
         block_offset = block_end

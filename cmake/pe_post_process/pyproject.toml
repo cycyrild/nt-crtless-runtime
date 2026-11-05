@@ -1,0 +1,13 @@
+[project]
+name = "pe-post-process"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ruff",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
