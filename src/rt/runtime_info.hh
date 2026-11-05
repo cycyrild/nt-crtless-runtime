@@ -13,6 +13,11 @@ struct RuntimeInfo
 
     // Application data, excluding relocation metadata
     RelativeRange data;
+
+    uintptr_t imageBase() const volatile
+    {
+        return reinterpret_cast<uintptr_t>(&start) - start_rva;
+    }
 };
 
 static_assert(sizeof(RuntimeInfo) == 28);
