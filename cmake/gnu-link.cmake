@@ -136,9 +136,9 @@ function(add_gnu_final_link target)
         COMMAND
         "${CMAKE_COMMAND}"
         -E env
-        "PYTHONPATH=${CMAKE_CURRENT_FUNCTION_LIST_DIR}"
+        "PYTHONPATH=${CMAKE_CURRENT_FUNCTION_LIST_DIR}/pe_post_process"
         "${Python3_EXECUTABLE}"
-        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/pe_post_process/main.py"
+        -m src
         "${_map}"
 
         COMMENT
