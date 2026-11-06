@@ -18,7 +18,7 @@ struct RelativeRange
         return reinterpret_cast<uint8_t *>(&start) + offset_from_start;
     }
 
-    bool contains(const void *ptr, size_t length = 1) const volatile
+    bool contains(const void *ptr, size_t length) const volatile
     {
         uintptr_t begin = reinterpret_cast<uintptr_t>(address());
         uintptr_t value = reinterpret_cast<uintptr_t>(ptr);

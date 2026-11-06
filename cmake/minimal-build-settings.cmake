@@ -51,27 +51,33 @@ add_compile_definitions(
   _AMD64_=1
 )
 
-add_compile_options(
-  -march=${TARGET_CPU}
-  -ffunction-sections
-  -fdata-sections
-  -fvisibility=hidden
-  -fno-unwind-tables
-  -fno-asynchronous-unwind-tables
-  -fno-ident
-  -Wall
-  -Wextra
-  -Wpedantic
-  -fno-stack-protector
-  -fno-stack-check
-  -mno-stack-arg-probe
-  -DPREFERRED_IMAGE_BASE=${PREFERRED_IMAGE_BASE}
-  -DPE_ALIGNMENT=${PE_ALIGNMENT}
-  # The GNU final link consumes LLD's combined LTO object, so every configuration must compile the
-  # application and its dependencies with LTO.
-  -flto=full
-  $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-  $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
-  $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
-  $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+if(NOT
+   CMAKE_PROJECT_NAME
+   STREQUAL
+   "CMAKE_TRY_COMPILE"
 )
+  add_compile_options(
+    -march=${TARGET_CPU}
+    -ffunction-sections
+    -fdata-sections
+    -fvisibility=hidden
+    -fno-unwind-tables
+    -fno-asynchronous-unwind-tables
+    -fno-ident
+    -Wall
+    -Wextra
+    -Wpedantic
+    -fno-stack-protector
+    -fno-stack-check
+    -mno-stack-arg-probe
+    -DPREFERRED_IMAGE_BASE=${PREFERRED_IMAGE_BASE}
+    -DPE_ALIGNMENT=${PE_ALIGNMENT}
+    # The GNU final link consumes LLD's combined LTO object, so every configuration must compile the
+    # application and its dependencies with LTO.
+    -flto=full
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-threadsafe-statics>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
+  )
+endif()

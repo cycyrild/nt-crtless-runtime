@@ -15,7 +15,6 @@ set_property(
 block()
 set(BUILD_SHARED_LIBS OFF)
 set(ALIAS_STANDARD_FUNCTION_NAMES HARD)
-
 add_subdirectory(printf)
 endblock()
 
@@ -36,11 +35,8 @@ target_sources(
     "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,MODULE_LIBRARY>:${CMAKE_CURRENT_SOURCE_DIR}/src/start_dll.S>"
 )
 
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC std_include
-  PRIVATE src
-)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC include_std)
+target_include_directories(${PROJECT_NAME} PRIVATE include_private)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC phnt::phnt printf)
 
