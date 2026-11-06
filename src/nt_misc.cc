@@ -1,6 +1,10 @@
+#define PHNT_NO_INLINE_INIT_STRING
+
+#include <phnt_windows.h>
+#include <phnt.h>
+
 #include <algorithm>
 #include <limits>
-#include <winternl.h>
 
 extern "C" VOID NTAPI RtlInitUnicodeString(PUNICODE_STRING destination, PCWSTR source)
 {

@@ -38,7 +38,7 @@ target_sources(
 
 target_include_directories(
   ${PROJECT_NAME}
-  PUBLIC include
+  PUBLIC std_include
   PRIVATE src
 )
 

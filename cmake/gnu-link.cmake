@@ -1,6 +1,4 @@
 function(add_gnu_final_link target)
-  find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
   cmake_parse_arguments(
     PARSE_ARGV
     1
@@ -10,32 +8,12 @@ function(add_gnu_final_link target)
     "LIBRARIES"
   )
 
-  if(NOT TARGET "${target}")
-    message(FATAL_ERROR "add_gnu_final_link: unknown target '${target}'")
-  endif()
-
-  if(NOT DEFINED ARG_SUBSYSTEM)
-    message(FATAL_ERROR "add_gnu_final_link: SUBSYSTEM is required")
-  endif()
-
-  if(NOT DEFINED ARG_OUTPUT_SUFFIX)
-    message(FATAL_ERROR "add_gnu_final_link: OUTPUT_SUFFIX is required")
-  endif()
-
-  if(NOT DEFINED ARG_EXPORTS_FILE)
-    message(FATAL_ERROR "add_gnu_final_link: EXPORTS_FILE is required")
-  endif()
-
-  get_filename_component(
-    _exports_file
-    "${ARG_EXPORTS_FILE}"
-    ABSOLUTE
-    BASE_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+  cmake_path(
+    ABSOLUTE_PATH ARG_EXPORTS_FILE
+    BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    NORMALIZE
+    OUTPUT_VARIABLE _exports_file
   )
-  if(NOT EXISTS "${_exports_file}" OR IS_DIRECTORY "${_exports_file}")
-    message(FATAL_ERROR "add_gnu_final_link: exports file not found: '${_exports_file}'")
-  endif()
 
   get_target_property(_target_type "${target}" TYPE)
   if(_target_type STREQUAL "SHARED_LIBRARY")
@@ -70,12 +48,12 @@ function(add_gnu_final_link target)
     "LINKER:/base:${PREFERRED_IMAGE_BASE}"
     "LINKER:/filealign:${PE_ALIGNMENT}"
     "LINKER:/align:${PE_ALIGNMENT}"
-    "LINKER:/entry:start"
-    "LINKER:/map"
-    "LINKER:/opt:ref"
-    "LINKER:/opt:icf"
-    "LINKER:/timestamp:0"
-    "LINKER:/lldsavetemps"
+    LINKER:/entry:start
+    LINKER:/map
+    LINKER:/opt:ref
+    LINKER:/opt:icf
+    LINKER:/timestamp:0
+    LINKER:/lldsavetemps
     "LINKER:/def:${_exports_file}"
   )
 
@@ -83,23 +61,6 @@ function(add_gnu_final_link target)
   foreach(_library IN LISTS ARG_LIBRARIES)
     list(APPEND _libraries "-l${_library}")
   endforeach()
-
-  file(
-    GLOB_RECURSE
-    _pe_post_process_scripts
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/pe_post_process/*.py"
-  )
-
-  # Changes to either final stage must rerun the coupled link pipeline
-  set_property(
-    TARGET ${target}
-    APPEND
-    PROPERTY LINK_DEPENDS
-             "${_linker_script}"
-             ${_pe_post_process_scripts}
-             ${_exports_file}
-  )
 
   # cmake-format: off
   add_custom_command(
@@ -111,7 +72,7 @@ function(add_gnu_final_link target)
       "${_map}"
 
     COMMAND
-      x86_64-w64-mingw32-ld
+      "${MINGW_LD}"
       -T "${_linker_script}"
       ${_pe_options}
       --subsystem "${ARG_SUBSYSTEM}"
@@ -133,7 +94,7 @@ function(add_gnu_final_link target)
       "${CMAKE_COMMAND}"
       -E env
       "PYTHONPATH=${CMAKE_CURRENT_FUNCTION_LIST_DIR}/pe_post_process"
-      "${Python3_EXECUTABLE}"
+      "${PYTHON3}"
       -m src
       "${_map}"
 

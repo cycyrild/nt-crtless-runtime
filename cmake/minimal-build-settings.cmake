@@ -19,6 +19,7 @@ set(CMAKE_CXX_COMPILER_TARGET x86_64-pc-windows-msvc)
 
 set(ASM_LTO_COMPILER "${CMAKE_CXX_COMPILER}") # ASM sources are wrapped in a C++ translation unit
                                               # for LTO compatibility
+set(CMAKE_INCLUDE_FLAG_ASM "-I")
 set(CMAKE_ASM_COMPILE_OBJECT
     "${CMAKE_CURRENT_LIST_DIR}/clang-asm-lto-wrapper.sh ${ASM_LTO_COMPILER} --target=${CMAKE_CXX_COMPILER_TARGET} <DEFINES> <INCLUDES> <FLAGS> -o <OBJECT> -c <SOURCE>"
 )
