@@ -1,56 +1,112 @@
-function(add_gnu_final_link target dependency)
-    set(_gnu_linker_script
-        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/gnu-final.ld"
+function(add_gnu_final_link target)
+  cmake_parse_arguments(
+    PARSE_ARGV
+    1
+    ARG
+    ""
+    "SUBSYSTEM;OUTPUT_SUFFIX;EXPORTS_FILE"
+    "LIBRARIES"
+  )
+
+  cmake_path(
+    ABSOLUTE_PATH
+    ARG_EXPORTS_FILE
+    BASE_DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    NORMALIZE
+    OUTPUT_VARIABLE
+    _exports_file
+  )
+
+  get_target_property(_target_type "${target}" TYPE)
+  if(_target_type STREQUAL "SHARED_LIBRARY")
+    set(_pe_options --dll)
+  elseif(_target_type STREQUAL "EXECUTABLE")
+    set(_pe_options)
+  else()
+    message(FATAL_ERROR "add_gnu_final_link: target '${target}' must be "
+                        "an EXECUTABLE or SHARED_LIBRARY, got '${_target_type}'"
     )
+  endif()
 
-    set(_gnu_executable
-        "${CMAKE_CURRENT_BINARY_DIR}/${target}.ld.exe"
-    )
+  set(_linker_script "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/gnu-final.ld")
 
-    set(_map_file
-        "${CMAKE_CURRENT_BINARY_DIR}/${target}.ld.map"
-    )
+  set(_output "${CMAKE_CURRENT_BINARY_DIR}/${target}.ld${ARG_OUTPUT_SUFFIX}")
 
-    add_custom_command(
-        OUTPUT
-        "${_gnu_executable}"
-        "${_map_file}"
+  set(_map "${CMAKE_CURRENT_BINARY_DIR}/${target}.ld.map")
 
-        COMMAND
-        x86_64-w64-mingw32-ld
-        -T "${_gnu_linker_script}"
-        --subsystem console
-        -e start
-        --gc-sections
-        --no-insert-timestamp
-        --section-alignment=0x1000
-        --file-alignment=0x1000
-        --strip-all
-        --nostdlib
-        "-Map=${_map_file}"
-        "$<TARGET_FILE:${target}>.lto.obj"
-        "$<TARGET_FILE:${dependency}>"
-        -L "${XWIN_ROOT}/sdk/lib/um/x86_64"
-        -lntdll
-        -o "${_gnu_executable}"
+  # Keep LLD's PE internal
+  set_target_properties(
+    ${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                         "${CMAKE_CURRENT_BINARY_DIR}/intermediate/$<CONFIG>"
+  )
+  target_link_options(
+    ${target}
+    PRIVATE
+    -nostdlib
+    -nodefaultlibs
+    -nostartfiles
+    -fno-rtlib-defaultlib
+    -flto=full
+    "LINKER:/base:${PREFERRED_IMAGE_BASE}"
+    "LINKER:/filealign:${PE_ALIGNMENT}"
+    "LINKER:/align:${PE_ALIGNMENT}"
+    LINKER:/entry:start
+    LINKER:/map
+    LINKER:/opt:ref
+    LINKER:/opt:icf
+    LINKER:/timestamp:0
+    LINKER:/lldsavetemps
+    "LINKER:/def:${_exports_file}"
+  )
 
-        DEPENDS
-        ${target}
-        ${dependency}
-        "${_gnu_linker_script}"
+  set(_libraries)
+  foreach(_library IN LISTS ARG_LIBRARIES)
+    list(APPEND _libraries "-l${_library}")
+  endforeach()
 
-        COMMENT
-        "GNU final link ${target}"
+  # cmake-format: off
+  add_custom_command(
+    TARGET ${target}
+    POST_BUILD
 
-        VERBATIM
-        COMMAND_EXPAND_LISTS
-    )
+    BYPRODUCTS
+      "${_output}"
+      "${_map}"
 
-    add_custom_target(
-        ${target}-gnu-link
-        ALL
-        DEPENDS
-        "${_gnu_executable}"
-        "${_map_file}"
-    )
+    COMMAND
+      "${MINGW_LD}"
+      -T "${_linker_script}"
+      ${_pe_options}
+      --subsystem "${ARG_SUBSYSTEM}"
+      -e start
+      --gc-sections
+      --no-insert-timestamp
+      "--image-base=${PREFERRED_IMAGE_BASE}"
+      "--file-alignment=${PE_ALIGNMENT}"
+      "--section-alignment=${PE_ALIGNMENT}"
+      --strip-all
+      --nostdlib
+      "-Map=${_map}"
+      "$<TARGET_FILE:${target}>.lto.obj"
+      ${_exports_file}
+      ${_libraries}
+      -o "${_output}"
+
+    COMMAND
+      "${CMAKE_COMMAND}"
+      -E env
+      "PYTHONPATH=${CMAKE_CURRENT_FUNCTION_LIST_DIR}/pe_post_process"
+      "${PYTHON3}"
+      -m src
+      "${_map}"
+
+    COMMENT
+      "GNU final link and PE post-processing ${target}"
+
+    VERBATIM
+    COMMAND_EXPAND_LISTS
+  )
+  # cmake-format: on
+
 endfunction()

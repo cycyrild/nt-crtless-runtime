@@ -1,6 +1,9 @@
-[submodule "printf"]
-	path = printf
-	url = https://github.com/eyalroz/printf
 [submodule "phnt"]
 	path = phnt
 	url = https://github.com/winsiderss/phnt.git
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "ctre"]
+	path = ctre
+	url = https://github.com/hanickadot/compile-time-regular-expressions.git

@@ -9,21 +9,58 @@ SECTIONS
 
   .text __image_base__ + PAGE_SIZE :
   {
-      KEEP(*(.text$start))
-      *(SORT_BY_ALIGNMENT(EXCLUDE_FILE(*/xwin/*/lib/*) .text*))
+      /* Bootstrap must use RIP-relative addressing until relocations are applied */
+      __start__ = .;
+      *(.text$runtime_start)
+      *(SORT_BY_ALIGNMENT(.text$runtime*))
+
+
+      /* Application code, excluding the runtime bootstrap */
+      __code_start__ = .;
+      *(SORT_BY_ALIGNMENT(.text*))
+      __code_end__ = .;
   }
 
   .data BLOCK(PAGE_SIZE) :
   {
+    __runtime_info_start__ = .;
+
+    KEEP(*(.runtime_info*))
+
+    __runtime_info_end__ = .;
+
+    /* ====== */
+      
+    . = ALIGN(8);
+    
+    /* Application data, excluding relocation metadata */
+    __data_start__ = .;
+  
     *(SORT_BY_ALIGNMENT(.rdata*))
 
     *(SORT_BY_ALIGNMENT(.data*))
 
     *(SORT_BY_ALIGNMENT(.bss*))
-  }
 
-  .idata BLOCK(PAGE_SIZE) :
-  {
+    __data_end__ = .;
+
+    /* ====== */
+
+    . = ALIGN(8);
+
+    __reloc_start__ = .;
+
+    *(.reloc)
+
+    __reloc_end__ = .;
+
+    /* ====== */
+
+    . = ALIGN(8);
+
+    /* Import directory */
+    __idata_start__ = .;
+
     KEEP(SORT(*)(.idata$2))
     KEEP(SORT(*)(.idata$3))
 
@@ -41,10 +78,7 @@ SECTIONS
 
     KEEP(SORT(*)(.idata$6))
     KEEP(SORT(*)(.idata$7))
-  }
 
-  /DISCARD/ :
-  {
-      *(*)
+    __idata_end__ = .;
   }
 }
